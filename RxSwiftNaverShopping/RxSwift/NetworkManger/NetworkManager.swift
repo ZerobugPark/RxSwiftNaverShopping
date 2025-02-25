@@ -7,12 +7,11 @@
 
 import Foundation
 
-import Alamofire
 import RxSwift
 
 
 enum APIError: Error {
-    
+    case invalidURL
 }
 
 enum NaverRequestRxSwift {
@@ -27,35 +26,37 @@ enum NaverRequestRxSwift {
     
     
     var endPoint: URL {
+        var urlComponents = URLComponents(string: baseURL)!
+        urlComponents.queryItems = queryParameters.map { URLQueryItem(name: $0.key, value: $0.value) }
+        
+        return urlComponents.url!
+        
+    }
+    
+    var header: [String: String] {
+        return ["X-Naver-Client-Id": APIKey.clientId,
+                "X-Naver-Client-Secret": APIKey.clientSecret]
+        
+    }
+    
+    
+    private var queryParameters: [String: String] {
         switch self {
-        case.getInfo:
-            return URL(string: baseURL)!
+        case .getInfo(let query, let display, let sort, let startIndex):
+            return [
+                "query": query,
+                "display": "\(display)",
+                "sort": sort,
+                "start": "\(startIndex)"
+            ]
         }
-        
-        
     }
-    
-    var header: HTTPHeaders {
-        return ["X-Naver-Client-Id": APIKey.clientId, "X-Naver-Client-Secret": APIKey.clientSecret]
-        
-    }
-    
-    
-    var method: HTTPMethod {
-        return .get
-    }
-    
-    var parameter: Parameters? {
-        switch self {
-        case let .getInfo(query: query, display: display, sort: sort, startIndex: startIndex):
-            let parameters = ["query": query, "display": String(display), "sort": sort, "start": String(startIndex)]
-            return parameters
-            
-        }
-        
-    }
-    
 }
+
+
+
+
+
 
 class NetworkManagerRxSwift {
     
@@ -63,35 +64,85 @@ class NetworkManagerRxSwift {
     
     private init() { }
     
-    func callRequest<T: Decodable>(api: NaverRequestRxSwift, type: T.Type) -> Single<Result<T, APIError>> {
+    func callRequest2() -> Single<Result<NaverShoppingInfo, APIError>> {
         
-        return Single<Result<T, APIError>>.create { value in
+        
+        return Single<Result<NaverShoppingInfo, APIError>>.create { value in
             
-            AF.request(api as! URLRequestConvertible).responseString { value in
-                print(value)
+            let url = "https://openapi.naver.com/v1/search/shop.json?"
+            
+            var urlComponents = URLComponents(string: url)
+            let query = URLQueryItem(name: "query", value: "다람쥐")
+            let displayQuery = URLQueryItem(name: "display", value: "100")
+            let sortQuery = URLQueryItem(name: "sort", value: Sorts.sim.rawValue)
+            let startQuery = URLQueryItem(name: "start", value: "1")
+            
+            urlComponents?.queryItems?.append(contentsOf: [query, displayQuery, sortQuery, startQuery])
+            
+            
+            guard let requestURL = urlComponents?.url else {
+                //value(.failure(APIError.invalidURL)) // SINGLE
+                // 싱글의 입장에서는 스트림이 유지되도록 성공으로 보냄, 대신, 사용자의 결과에는 실패를 보냄
+                
+                return Disposables.create { // create()는 별도의 행위가 없을 때 사용
+                    print("URL 오류입니당")
+                }
             }
             
+            var request = URLRequest(url: requestURL)
+         
+            request.setValue(APIKey.clientId, forHTTPHeaderField: "X-Naver-Client-Id")
+            request.setValue(APIKey.clientSecret, forHTTPHeaderField: "X-Naver-Client-Secret")
+           
             
-            AF.request(api.endPoint, method: api.method, parameters: api.parameter, encoding: URLEncoding(destination: .queryString),headers: api.header).validate(statusCode: 0..<300).responseDecodable(of: T.self) { response in
+            //request.setValue("X-Naver-Client-Id", forHTTPHeaderField: APIKey.clientId)
+            //request.setValue("X-Naver-Client-Secret", forHTTPHeaderField: APIKey.clientSecret)
+            
+            URLSession.shared.dataTask(with: request) { data, response, error in
                 
-                switch response.result {
-                case .success(let val):
-                    value(.success(.success(val)))
-                case.failure(let error):
-                    print(error)
-                    //value(.failure(APIError.)
+                if let error = error {
+                    value(.success(.failure(APIError.invalidURL)))
+                    //value(.failure(APIError.unknownResponse))
+                    
+                    
+                    return
+                }
+                
+                guard let response = response as? HTTPURLResponse, (200...299).contains(response.statusCode) else {
+                    
+                    if let status = response as? HTTPURLResponse {
+                        print(status.statusCode)
+                    }
+                    value(.success(.failure(APIError.invalidURL)))
+                    
+                    
+                    return
+                }
+                
+                if let data = data {
+                    
+                    do {
+                        let result = try JSONDecoder().decode(NaverShoppingInfo.self, from: data)
+                        
+                        print(result)
+                        value(.success(.failure(APIError.invalidURL)))
+                        //value(.success(.success(result)))
+                    } catch { // try에서 오류가 날 경우 catch 구문이 실행 즉, 디코딩 문제
+                        value(.success(.failure(APIError.invalidURL)))
+                    }
+                    
+                } else {
+                    value(.success(.failure(APIError.invalidURL)))
                 }
                 
                 
-            }
+            }.resume() //필수
             
+            return Disposables.create()
             
-            return Disposables.create {
-                print("끝")
-            }
         }
-        
     }
     
-        
 }
+
+

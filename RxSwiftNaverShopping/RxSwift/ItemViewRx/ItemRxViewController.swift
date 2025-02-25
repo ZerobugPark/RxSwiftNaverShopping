@@ -34,7 +34,7 @@ class ItemRxViewController: UIViewController {
         
 
         a.flatMap { _ in
-            NetworkManagerRxSwift.shared.callRequest(api: .getInfo(query: "다람쥐", display: 10, sort: Sorts.sim.rawValue, startIndex: 0), type: NaverShoppingInfo.self)
+            NetworkManagerRxSwift.shared.callRequest2()
             
         }.subscribe(with: self) { owner, value in
             print(value)

@@ -10,8 +10,17 @@ import Foundation
 import RxSwift
 
 
-enum APIError: Error {
-    case invalidURL
+enum APIError: Int, Error {
+    case invalidURL = 0
+    case queryCheck = 400
+    case authenticationFailed = 401
+    case noneApi = 404
+    case checkHTTPMethod = 405
+    case limitedRequest = 429
+    case serverError = 500
+    case unknown = 9997
+    case JsonError = 9998
+    case decodingError = 9999
 }
 
 enum NaverRequestRxSwift {
@@ -106,10 +115,31 @@ class NetworkManagerRxSwift {
                     
                     if let status = response as? HTTPURLResponse {
                         print(status.statusCode)
+                        
+                
+                        
+                        switch status.statusCode {
+                        case APIError.queryCheck.rawValue:
+                            value(.success(.failure(APIError.queryCheck)))
+                        case APIError.authenticationFailed.rawValue:
+                            value(.success(.failure(APIError.authenticationFailed)))
+                        case APIError.noneApi.rawValue:
+                            value(.success(.failure(APIError.noneApi)))
+                        case APIError.checkHTTPMethod.rawValue:
+                            value(.success(.failure(APIError.checkHTTPMethod)))
+                        case APIError.limitedRequest.rawValue:
+                            value(.success(.failure(APIError.limitedRequest)))
+                        case APIError.serverError.rawValue:
+                            value(.success(.failure(APIError.serverError)))
+                        default:
+                            value(.success(.failure(APIError.unknown)))
+                        }
+                        
+                        value(.success(.failure(APIError.invalidURL)))
+                        
+                        return
                     }
-                    value(.success(.failure(APIError.invalidURL)))
-                    
-                    
+                    value(.success(.failure(APIError.unknown)))
                     return
                 }
                 
@@ -117,16 +147,14 @@ class NetworkManagerRxSwift {
                     
                     do {
                         let result = try JSONDecoder().decode(NaverShoppingInfo.self, from: data)
-                        
-                       
                         value(.success(.success(result)))
-                        //value(.success(.success(result)))
+                  
                     } catch { // try에서 오류가 날 경우 catch 구문이 실행 즉, 디코딩 문제
-                        value(.success(.failure(APIError.invalidURL)))
+                        value(.success(.failure(APIError.decodingError)))
                     }
                     
                 } else {
-                    value(.success(.failure(APIError.invalidURL)))
+                    value(.success(.failure(APIError.JsonError)))
                 }
                 
                 

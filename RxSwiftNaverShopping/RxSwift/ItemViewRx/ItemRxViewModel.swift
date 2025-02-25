@@ -25,6 +25,9 @@ final class ItemRxViewModel: BaseViewModel {
     struct Output {
         let shoppingInfo: BehaviorRelay<[Item]>
         let viewDidLoad: Observable<String>
+        let itemInfo: BehaviorRelay<(String)>
+        let errorMsg: PublishRelay<String>
+        let buttonStatus: PublishRelay<String>
     }
     
     private let disposeBag = DisposeBag()
@@ -44,16 +47,22 @@ final class ItemRxViewModel: BaseViewModel {
         
         let shoppingInfo = BehaviorRelay(value: data)
         let title = Observable.just(query)
-        
+        let total = BehaviorRelay(value: "")
+        let errorMsg = PublishRelay<String>()
+        let buttonStatus = PublishRelay<String>()
         
         input.viewDidLoad.flatMap {
             NetworkManagerRxSwift.shared.callRequest(search: self.query, filter: self.filter)
-        }.bind(with: self) { owner, value in
+        }.bind(with: self) { owner, response in
             
-            switch value {
-            case .success(let response):
-                owner.data = response.items
+            switch response {
+            case .success(let value):
+                owner.data = value.items
+                
                 shoppingInfo.accept(owner.data)
+                
+                let msg = value.total.formatted() + " 개의 검색 결과"
+                total.accept(msg)
                
             case .failure(let error):
                 print(error)
@@ -70,32 +79,36 @@ final class ItemRxViewModel: BaseViewModel {
             case 1:
                 return Sorts.date.rawValue
             case 2:
-                return Sorts.sim.rawValue
-            case 3:
                 return Sorts.asc.rawValue
-            default:
+            case 3:
                 return Sorts.dsc.rawValue
+            default:
+                return Sorts.sim.rawValue
                 
             }
             
-        }.flatMap({
-            NetworkManagerRxSwift.shared.callRequest(search: self.query, filter: $0)
-        })
+        }.flatMap{ tag in
+            NetworkManagerRxSwift.shared.callRequest(search: self.query, filter: tag)
+                .map { response in
+                    return (tag, response)
+                }
+        }
         .bind(with: self) { owner, value in
             
-            switch value {
+            switch value.1 {
             case .success(let response):
                 owner.data = response.items
                 shoppingInfo.accept(owner.data)
-               
+                buttonStatus.accept(value.0)
             case .failure(let error):
                 print(error)
             }
         
             
+            
         }.disposed(by: disposeBag)
      
-        return Output(shoppingInfo: shoppingInfo, viewDidLoad: title)
+        return Output(shoppingInfo: shoppingInfo, viewDidLoad: title, itemInfo: total, errorMsg: errorMsg, buttonStatus: buttonStatus)
     }
     
     

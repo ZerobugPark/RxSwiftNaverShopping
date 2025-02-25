@@ -29,6 +29,7 @@ final class SearchRxViewController: UIViewController {
         
         
         navigationItem.title = "오늘도 쇼핑쇼핑"
+        navigationItem.backButtonTitle = ""
         navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
         configuration()
         bind() 

@@ -65,13 +65,51 @@ class ItemRxViewController: UIViewController {
                 
             }.disposed(by: disposeBag)
         
+    
+        
         
         itemView.collectionView.rx.setDelegate(self).disposed(by: disposeBag)
         
         output.viewDidLoad.bind(to: navigationItem.rx.title).disposed(by: disposeBag)
+        
+        output.itemInfo.asDriver().drive(itemView.resultCountLabel.rx.text).disposed(by: disposeBag)
+        
+        output.buttonStatus.asDriver(onErrorJustReturn: "").drive(with: self) { owner, value in
+            
+            var tag = 0
+            switch value {
+            case Sorts.sim.rawValue:
+                tag = 0
+            case Sorts.date.rawValue:
+                tag = 1
+            case Sorts.asc.rawValue:
+                tag = 2
+            case Sorts.dsc.rawValue:
+                tag = 3
+            default:
+                tag = 0
+                
+            }
+            owner.changeButtonColor(tag: tag)
+            
+        }.disposed(by: disposeBag)
     }
     
+    
+    private func changeButtonColor(tag: Int) {
+        //버튼 뷰 업데이트
+        for i in 0..<itemView.buttons.count {
+            if i == tag {
+                itemView.buttons[i].configuration?.baseForegroundColor = .black
+                itemView.buttons[i].configuration?.baseBackgroundColor = .white
 
+            } else {
+                itemView.buttons[i].configuration?.baseForegroundColor = .white
+                itemView.buttons[i].configuration?.baseBackgroundColor = .black
+
+            }
+        }
+    }
   
 }
 

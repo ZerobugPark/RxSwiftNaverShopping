@@ -53,7 +53,12 @@ final class SearchRxViewController: UIViewController {
             
         }.disposed(by: disposeBag)
         
-        output.searchItem.asDriver(onErrorJustReturn: "").drive(with: self) { owenr, text in
+        output.searchItem.asDriver(onErrorJustReturn: "").drive(with: self) { owner, text in
+            let vc = ItemRxViewController()
+            
+            vc.viewModel.query = text
+            
+            owner.navigationController?.pushViewController(vc, animated: true)
             
         }.disposed(by: disposeBag)
         

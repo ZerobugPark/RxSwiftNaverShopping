@@ -7,21 +7,30 @@
 
 import UIKit
 
-class ItemRxCollectionViewCell: BaseCollectionViewCell {
+import RxSwift
+import RxCocoa
+import Alamofire
+
+
+final class ItemRxCollectionViewCell: BaseCollectionViewCell {
     
     static let id = "ItemRxCollectionViewCell"
     
     
     private let circleView = UIView()
-    private let likeBtn = CustomBtn(imgName: "heart")
+    
     private let labelStackView = UIStackView()
     private let titleLabel = CustomLabel(fontSize: 14, color: .white, bold: false)
-    private var status: Bool = false
     
-    let mainImage = UIImageView()
-    let mallNameLabel = CustomLabel(fontSize: 12, color: .lightGray, bold: false)
-    let lpriceLabel = CustomLabel(fontSize: 20, color: .white, bold: true)
- 
+    
+    private let mainImage = UIImageView()
+    private let mallNameLabel = CustomLabel(fontSize: 12, color: .lightGray, bold: false)
+    private let lpriceLabel = CustomLabel(fontSize: 20, color: .white, bold: true)
+    var status: Bool = false
+    let likeBtn = CustomBtn(imgName: "heart")
+    var disposeBag = DisposeBag()
+    let buttonTapped = PublishRelay<Void>()
+    
     
     override func configureHierarchy() {
         contentView.addSubview(mainImage)
@@ -66,8 +75,6 @@ class ItemRxCollectionViewCell: BaseCollectionViewCell {
 
         titleLabel.numberOfLines = 2
 
-        likeBtn.addTarget(self, action: #selector(likeButtonTapped), for: .touchUpInside)
-
         circleView.backgroundColor = .white
         DispatchQueue.main.async {
             self.circleView.layer.cornerRadius = self.circleView.frame.width / 2
@@ -75,6 +82,16 @@ class ItemRxCollectionViewCell: BaseCollectionViewCell {
 
         labelStackView.axis = .vertical
         labelStackView.distribution = .fillProportionally
+        
+
+    }
+    
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        disposeBag = DisposeBag()
+        status = false
+        
     }
     
     func updateItemList(item: Item) {
@@ -100,18 +117,5 @@ class ItemRxCollectionViewCell: BaseCollectionViewCell {
     
 }
 
-// MARK: - objc function
 
-extension ItemRxCollectionViewCell {
-    @objc private func likeButtonTapped(_ sender: UIButton) {
-        
-        if !status {
-            likeBtn.setImage(UIImage(systemName: "heart.fill"), for: .normal)
-        } else {
-            likeBtn.setImage(UIImage(systemName: "heart"), for: .normal)
-        }
-        
-        status.toggle()
-        
-    }
-}
+

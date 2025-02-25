@@ -14,6 +14,7 @@ struct NaverShoppingInfo: Decodable {
     let start: Int
     let display: Int
     let items: [Item]
+  
     
 }
 

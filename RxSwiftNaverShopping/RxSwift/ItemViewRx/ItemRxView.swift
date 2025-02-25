@@ -7,6 +7,7 @@
 
 import UIKit
 
+
 class ItemRxView: BaseView {
 
     let resultCountLabel = UILabel()
@@ -80,12 +81,10 @@ class ItemRxView: BaseView {
     private func createCollectionViewLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewFlowLayout()
         
-        let deviceWidth = UIScreen.main.bounds.size.width
-        let spacing: CGFloat = 16
+       
         let inset: CGFloat = 16
-        let objectWidth = (deviceWidth - (spacing + (inset*2))) / 2
         
-        layout.itemSize = CGSize(width: objectWidth, height:  objectWidth * 1.5)
+        layout.itemSize = CGSize(width: 10, height:  10)
         layout.sectionInset = UIEdgeInsets(top: 16, left: inset, bottom: 0, right: inset)
         layout.scrollDirection = .vertical
         

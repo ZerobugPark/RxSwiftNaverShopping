@@ -64,17 +64,17 @@ class NetworkManagerRxSwift {
     
     private init() { }
     
-    func callRequest2() -> Single<Result<NaverShoppingInfo, APIError>> {
+    func callRequest(search: String, filter: String) -> Single<Result<NaverShoppingInfo, APIError>> {
         
         
         return Single<Result<NaverShoppingInfo, APIError>>.create { value in
-            
+       
             let url = "https://openapi.naver.com/v1/search/shop.json?"
             
             var urlComponents = URLComponents(string: url)
-            let query = URLQueryItem(name: "query", value: "다람쥐")
+            let query = URLQueryItem(name: "query", value: search)
             let displayQuery = URLQueryItem(name: "display", value: "100")
-            let sortQuery = URLQueryItem(name: "sort", value: Sorts.sim.rawValue)
+            let sortQuery = URLQueryItem(name: "sort", value: filter)
             let startQuery = URLQueryItem(name: "start", value: "1")
             
             urlComponents?.queryItems?.append(contentsOf: [query, displayQuery, sortQuery, startQuery])
@@ -93,18 +93,12 @@ class NetworkManagerRxSwift {
          
             request.setValue(APIKey.clientId, forHTTPHeaderField: "X-Naver-Client-Id")
             request.setValue(APIKey.clientSecret, forHTTPHeaderField: "X-Naver-Client-Secret")
-           
-            
-            //request.setValue("X-Naver-Client-Id", forHTTPHeaderField: APIKey.clientId)
-            //request.setValue("X-Naver-Client-Secret", forHTTPHeaderField: APIKey.clientSecret)
+
             
             URLSession.shared.dataTask(with: request) { data, response, error in
                 
                 if let error = error {
                     value(.success(.failure(APIError.invalidURL)))
-                    //value(.failure(APIError.unknownResponse))
-                    
-                    
                     return
                 }
                 
@@ -124,8 +118,8 @@ class NetworkManagerRxSwift {
                     do {
                         let result = try JSONDecoder().decode(NaverShoppingInfo.self, from: data)
                         
-                        print(result)
-                        value(.success(.failure(APIError.invalidURL)))
+                       
+                        value(.success(.success(result)))
                         //value(.success(.success(result)))
                     } catch { // try에서 오류가 날 경우 catch 구문이 실행 즉, 디코딩 문제
                         value(.success(.failure(APIError.invalidURL)))

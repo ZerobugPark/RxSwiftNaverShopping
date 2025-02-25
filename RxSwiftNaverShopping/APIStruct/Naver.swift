@@ -29,8 +29,9 @@ struct Item: Decodable {
 enum Sorts: String {
     case sim = "sim"
     case date = "date"
-    case asc = "asc"
     case dsc = "dsc"
+    case asc = "asc"
+
     
 }
 

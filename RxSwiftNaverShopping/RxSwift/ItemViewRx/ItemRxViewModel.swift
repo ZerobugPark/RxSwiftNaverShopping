@@ -65,7 +65,34 @@ final class ItemRxViewModel: BaseViewModel {
                 total.accept(msg)
                
             case .failure(let error):
-                print(error)
+                var msg = ""
+                switch error {
+                case .invalidURL:
+                    msg = "잘못된 URL"
+                case .queryCheck:
+                    msg = "요청 변수 확인"
+                case .authenticationFailed:
+                    msg = "인증 실패"
+                case .forbid:
+                    msg = "HTTPS가 아닌 HTTP로 호출한 경우"
+                case .noneApi:
+                    msg = "API 없음"
+                case .checkHTTPMethod:
+                    msg = "메서드 허용 안 함"
+                case .limitedRequest:
+                    msg = "호출 한도 초과 오류"
+                case .serverError:
+                    msg = "서버 오ㄹ"
+                case .unknown:
+                    msg = "알려지지 않음"
+                case .JsonError:
+                    msg = "Data 확인"
+                case .decodingError:
+                    msg = "구조체 오류"
+                
+                }
+                
+                errorMsg.accept(msg)
             }
             
             
@@ -79,9 +106,9 @@ final class ItemRxViewModel: BaseViewModel {
             case 1:
                 return Sorts.date.rawValue
             case 2:
-                return Sorts.asc.rawValue
-            case 3:
                 return Sorts.dsc.rawValue
+            case 3:
+                return Sorts.asc.rawValue
             default:
                 return Sorts.sim.rawValue
                 
@@ -101,7 +128,35 @@ final class ItemRxViewModel: BaseViewModel {
                 shoppingInfo.accept(owner.data)
                 buttonStatus.accept(value.0)
             case .failure(let error):
-                print(error)
+               
+                var msg = ""
+                switch error {
+                case .invalidURL:
+                    msg = "잘못된 URL"
+                case .queryCheck:
+                    msg = "요청 변수 확인"
+                case .authenticationFailed:
+                    msg = "인증 실패"
+                case .forbid:
+                    msg = "HTTPS가 아닌 HTTP로 호출한 경우"
+                case .noneApi:
+                    msg = "API 없음"
+                case .checkHTTPMethod:
+                    msg = "메서드 허용 안 함"
+                case .limitedRequest:
+                    msg = "호출 한도 초과 오류"
+                case .serverError:
+                    msg = "서버 오ㄹ"
+                case .unknown:
+                    msg = "알려지지 않음"
+                case .JsonError:
+                    msg = "Data 확인"
+                case .decodingError:
+                    msg = "구조체 오류"
+                
+                }
+                
+                errorMsg.accept(msg)
             }
         
             

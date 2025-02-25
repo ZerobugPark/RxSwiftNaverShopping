@@ -14,6 +14,7 @@ enum APIError: Int, Error {
     case invalidURL = 0
     case queryCheck = 400
     case authenticationFailed = 401
+    case forbid = 403
     case noneApi = 404
     case checkHTTPMethod = 405
     case limitedRequest = 429
@@ -106,7 +107,7 @@ class NetworkManagerRxSwift {
             
             URLSession.shared.dataTask(with: request) { data, response, error in
                 
-                if let error = error {
+                if error != nil {
                     value(.success(.failure(APIError.invalidURL)))
                     return
                 }
@@ -123,6 +124,8 @@ class NetworkManagerRxSwift {
                             value(.success(.failure(APIError.queryCheck)))
                         case APIError.authenticationFailed.rawValue:
                             value(.success(.failure(APIError.authenticationFailed)))
+                        case APIError.forbid.rawValue:
+                            value(.success(.failure(APIError.forbid)))
                         case APIError.noneApi.rawValue:
                             value(.success(.failure(APIError.noneApi)))
                         case APIError.checkHTTPMethod.rawValue:

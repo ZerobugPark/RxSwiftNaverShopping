@@ -82,15 +82,26 @@ class ItemRxViewController: UIViewController {
                 tag = 0
             case Sorts.date.rawValue:
                 tag = 1
-            case Sorts.asc.rawValue:
-                tag = 2
             case Sorts.dsc.rawValue:
+                tag = 2
+            case Sorts.asc.rawValue:
                 tag = 3
             default:
                 tag = 0
                 
             }
             owner.changeButtonColor(tag: tag)
+            
+        }.disposed(by: disposeBag)
+        
+        
+        output.errorMsg.asDriver(onErrorJustReturn: "").drive(with: self) { owner, msg in
+            let alert = UIAlertController(title: "API 통신 오류", message: msg, preferredStyle: .alert)
+            let ok = UIAlertAction(title: "확인", style: .default)
+            
+            alert.addAction(ok)
+            owner.present(alert, animated: true)
+            
             
         }.disposed(by: disposeBag)
     }

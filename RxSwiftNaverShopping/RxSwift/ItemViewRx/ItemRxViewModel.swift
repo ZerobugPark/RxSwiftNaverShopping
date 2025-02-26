@@ -29,6 +29,7 @@ final class ItemRxViewModel: BaseViewModel {
         let itemInfo: BehaviorRelay<(String)>
         let errorMsg: PublishRelay<String>
         let buttonStatus: PublishRelay<String>
+        let isEmpty: PublishRelay<Bool>
     }
     
     private let disposeBag = DisposeBag()
@@ -51,6 +52,7 @@ final class ItemRxViewModel: BaseViewModel {
         let total = BehaviorRelay(value: "")
         let errorMsg = PublishRelay<String>()
         let buttonStatus = PublishRelay<String>()
+        let isEmpty = PublishRelay<Bool>()
         
         input.viewDidLoad.flatMap {
             NetworkManagerRxSwift.shared.callRequest(search: self.query, filter: self.filter)
@@ -127,6 +129,11 @@ final class ItemRxViewModel: BaseViewModel {
             case .success(let response):
                 owner.data = response.items
                 shoppingInfo.accept(owner.data)
+                if owner.data.isEmpty {
+                    isEmpty.accept(true)
+                } else {
+                    isEmpty.accept(false)
+                }
                 buttonStatus.accept(value.0)
             case .failure(let error):
                
@@ -172,7 +179,7 @@ final class ItemRxViewModel: BaseViewModel {
         }.disposed(by: disposeBag)
         
      
-        return Output(shoppingInfo: shoppingInfo, viewDidLoad: title, itemInfo: total, errorMsg: errorMsg, buttonStatus: buttonStatus)
+        return Output(shoppingInfo: shoppingInfo, viewDidLoad: title, itemInfo: total, errorMsg: errorMsg, buttonStatus: buttonStatus, isEmpty: isEmpty)
     }
     
     

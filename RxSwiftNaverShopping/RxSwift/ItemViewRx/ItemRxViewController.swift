@@ -115,6 +115,18 @@ class ItemRxViewController: UIViewController {
             
         }.disposed(by: disposeBag)
         
+        output.isEmpty.asDriver(onErrorJustReturn: false).drive(with: self) { owner, status in
+            
+            if status {
+                print("찾는게 없슙니다")
+            } else {
+                owner.itemView.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
+            }
+        }.disposed(by: disposeBag)
+            
+            
+            //.drive(self.itemView.collectionView.rx.didScrollToTop).disposed(by: disposeBag)
+        
         
         output.errorMsg.asDriver(onErrorJustReturn: "").drive(with: self) { owner, msg in
             let alert = UIAlertController(title: "API 통신 오류", message: msg, preferredStyle: .alert)

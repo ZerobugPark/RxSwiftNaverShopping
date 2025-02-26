@@ -27,11 +27,8 @@ final class ItemRxCollectionViewCell: BaseCollectionViewCell {
     private let mainImage = UIImageView()
     private let mallNameLabel = CustomLabel(fontSize: 12, color: .lightGray, bold: false)
     private let lpriceLabel = CustomLabel(fontSize: 20, color: .white, bold: true)
-    var status: Bool = false
     let likeBtn = CustomBtn(imgName: "heart")
     var disposeBag = DisposeBag()
-    let buttonTapped = PublishRelay<Void>()
-    
     
     override func configureHierarchy() {
         contentView.addSubview(mainImage)
@@ -91,7 +88,7 @@ final class ItemRxCollectionViewCell: BaseCollectionViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         disposeBag = DisposeBag()
-        status = false
+
         
     }
     

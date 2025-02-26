@@ -83,7 +83,7 @@ final class ItemRxViewModel: BaseViewModel {
                 case .limitedRequest:
                     msg = "호출 한도 초과 오류"
                 case .serverError:
-                    msg = "서버 오ㄹ"
+                    msg = "서버 오류"
                 case .unknown:
                     msg = "알려지지 않음"
                 case .JsonError:

@@ -20,6 +20,7 @@ final class ItemRxViewModel: BaseViewModel {
     struct Input {
         let viewDidLoad: Observable<Void>
         let filterButton: Observable<Int>
+        let likebuttonTapped: PublishRelay<Int>
     }
     
     struct Output {
@@ -162,6 +163,14 @@ final class ItemRxViewModel: BaseViewModel {
             
             
         }.disposed(by: disposeBag)
+        
+        input.likebuttonTapped.asDriver(onErrorJustReturn: 0).drive(with: self) { owner, value in
+            
+            owner.data[value].isLike.toggle()
+            shoppingInfo.accept(owner.data)
+            
+        }.disposed(by: disposeBag)
+        
      
         return Output(shoppingInfo: shoppingInfo, viewDidLoad: title, itemInfo: total, errorMsg: errorMsg, buttonStatus: buttonStatus)
     }

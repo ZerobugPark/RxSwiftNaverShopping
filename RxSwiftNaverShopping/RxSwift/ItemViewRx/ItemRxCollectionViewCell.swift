@@ -10,6 +10,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 import Alamofire
+import Kingfisher
 
 
 final class ItemRxCollectionViewCell: BaseCollectionViewCell {

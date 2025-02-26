@@ -10,8 +10,6 @@ import UIKit
 import RxCocoa
 import RxSwift
 import SnapKit
-import Kingfisher
-
 
 
 
@@ -24,6 +22,9 @@ final class SearchRxViewController: UIViewController {
     
     private let disposeBag = DisposeBag()
     
+    
+    private let rightButton = UIBarButtonItem(image: UIImage(systemName: "star"), style: .plain, target: nil, action: nil)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -31,6 +32,11 @@ final class SearchRxViewController: UIViewController {
         navigationItem.title = "오늘도 쇼핑쇼핑"
         navigationItem.backButtonTitle = ""
         navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.white]
+        
+        
+        
+        navigationItem.rightBarButtonItem = rightButton
+        
         configuration()
         bind() 
     }
@@ -64,7 +70,13 @@ final class SearchRxViewController: UIViewController {
         }.disposed(by: disposeBag)
         
         
-        
+        rightButton.rx.tap.bind(with: self) { owner, _ in
+            
+            let vc = WishListViewController()
+            
+            owner.navigationController?.pushViewController(vc, animated: true)
+            
+        }.disposed(by: disposeBag)
     }
 
 }

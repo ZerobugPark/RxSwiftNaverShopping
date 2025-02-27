@@ -18,6 +18,9 @@ final class SearchRxViewController: UIViewController {
     private let searchBar = UISearchBar()
     private let bgImage = UIImageView()
     
+    private let textField = UISearchBar()
+    private let label = UILabel()
+    
     private let viewModel = SearchRxViewModel()
     
     private let disposeBag = DisposeBag()
@@ -36,6 +39,16 @@ final class SearchRxViewController: UIViewController {
         
         
         navigationItem.rightBarButtonItem = rightButton
+        
+        // 블로그 개꿀
+        textField.rx.searchButtonClicked.bind(with: self) { owner, _ in
+            //let disposeBag = DisposeBag()
+            owner.textField.rx.text.orEmpty.bind(with: owner) { owner, text in
+                
+                owner.label.text = text
+            }.dispose()
+            
+        }.disposed(by: disposeBag)
         
         configuration()
         bind() 
@@ -96,7 +109,9 @@ extension SearchRxViewController {
     
     private func configureHierarchy() {
         view.addSubview(searchBar)
-        view.addSubview(bgImage)
+        //view.addSubview(bgImage)
+        view.addSubview(textField)
+        view.addSubview(label)
     }
     
     private func configureLayout() {
@@ -105,9 +120,26 @@ extension SearchRxViewController {
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(4)
             
         }
-        bgImage.snp.makeConstraints { make in
+//        bgImage.snp.makeConstraints { make in
+//            make.center.equalTo(view.safeAreaLayoutGuide)
+//        }
+//        
+        textField.snp.makeConstraints { make in
             make.center.equalTo(view.safeAreaLayoutGuide)
+            make.width.equalTo(100)
+            make.height.equalTo(50)
+            
         }
+        
+        label.snp.makeConstraints { make in
+            make.top.equalTo(textField.snp.bottom).offset(10)
+            make.centerX.equalTo(view)
+            make.width.equalTo(100)
+            make.height.equalTo(50)
+            
+        }
+        
+        
         
 
     }
@@ -124,7 +156,9 @@ extension SearchRxViewController {
         searchBar.searchTextField.textColor = .white
         searchBar.searchBarStyle = .minimal
        
-
+        textField.backgroundColor = .red
+        label.backgroundColor = .white
+        
         bgImage.image = UIImage(named: "flex")
 
     }

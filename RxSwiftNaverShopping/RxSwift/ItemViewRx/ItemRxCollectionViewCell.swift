@@ -111,6 +111,10 @@ final class ItemRxCollectionViewCell: BaseCollectionViewCell {
         }
         
     }
+    
+    deinit {
+        print("ItemRxCollectionViewCell Deinit")
+    }
 
     
 }
